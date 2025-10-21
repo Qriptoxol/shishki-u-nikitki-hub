@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTelegram } from '@/hooks/useTelegram';
 import { useCart } from '@/hooks/useCart';
 import { ProductCard } from '@/components/ProductCard';
@@ -31,6 +32,7 @@ interface Review {
 }
 
 const Index = () => {
+  const navigate = useNavigate();
   const { user, isInTelegram } = useTelegram();
   const { addItem, getTotalItems } = useCart();
   const { toast } = useToast();
@@ -112,7 +114,12 @@ const Index = () => {
                 <p className="text-xs text-muted-foreground">Натуральные шишки с доставкой</p>
               </div>
             </div>
-            <Button variant="outline" size="icon" className="relative">
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="relative"
+              onClick={() => navigate('/cart')}
+            >
               <ShoppingCart className="h-5 w-5" />
               {getTotalItems() > 0 && (
                 <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-accent">
