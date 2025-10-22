@@ -18,6 +18,8 @@
     }
   },
   "builds": [
+    { "src": "package.json", "use": "@vercel/node" },
+    { "src": "vite.config.ts", "use": "@vercel/vite" },
     {
       "src": "supabase/functions/telegram-bot/index.ts",
       "use": "@vercel/deno"
