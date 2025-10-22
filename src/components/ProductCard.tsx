@@ -10,7 +10,7 @@ interface ProductCardProps {
   price: number;
   imageUrl: string;
   category: string;
-  stock: number;
+  inStock: boolean;
   onAddToCart: (id: string) => void;
 }
 
@@ -21,7 +21,7 @@ export const ProductCard = ({
   price,
   imageUrl,
   category,
-  stock,
+  inStock,
   onAddToCart,
 }: ProductCardProps) => {
   return (
@@ -43,18 +43,20 @@ export const ProductCard = ({
         <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{description}</p>
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold text-primary">{price} ₽</span>
-          <span className="text-sm text-muted-foreground">В наличии: {stock}</span>
+          <span className="text-sm text-muted-foreground">
+            {inStock ? 'В наличии' : 'Нет в наличии'}
+          </span>
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Button 
           onClick={() => onAddToCart(id)}
-          disabled={stock === 0}
+          disabled={!inStock}
           className="w-full"
           size="lg"
         >
           <ShoppingCart className="mr-2 h-4 w-4" />
-          {stock > 0 ? 'В корзину' : 'Нет в наличии'}
+          {inStock ? 'В корзину' : 'Нет в наличии'}
         </Button>
       </CardFooter>
     </Card>

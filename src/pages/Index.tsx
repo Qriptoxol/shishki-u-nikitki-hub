@@ -18,7 +18,7 @@ interface Product {
   price: number;
   image_url: string;
   category: string;
-  stock: number;
+  in_stock: boolean;
 }
 
 interface Review {
@@ -67,7 +67,6 @@ const Index = () => {
     const { data, error } = await supabase
       .from('reviews')
       .select('*, profiles(first_name)')
-      .eq('is_verified', true)
       .order('created_at', { ascending: false })
       .limit(6);
 
@@ -173,7 +172,7 @@ const Index = () => {
                 price={product.price}
                 imageUrl={product.image_url}
                 category={product.category}
-                stock={product.stock}
+                inStock={product.in_stock}
                 onAddToCart={handleAddToCart}
               />
             ))}
@@ -207,10 +206,26 @@ const Index = () => {
       </main>
 
       <footer className="bg-card border-t mt-12 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            © 2024 Шишки у Никитки. Все права защищены.
-          </p>
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto space-y-4">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-2">Шишки у Никитки</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Натуральные еловые и кедровые шишки с доставкой по всей России
+              </p>
+            </div>
+            
+            <div className="border-t pt-4 space-y-2">
+              <div className="text-center text-sm text-muted-foreground space-y-1">
+                <p className="font-semibold">ИП KingDog</p>
+                <p>ИНН: 772584563891</p>
+                <p>ОГРНИП: 318774600124567</p>
+                <p className="text-xs mt-2">
+                  © 2024 Шишки у Никитки. Все права защищены.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
