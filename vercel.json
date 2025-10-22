@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/bot",
+      "dest": "supabase/functions/telegram-bot/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "index.html"
+    }
+  ],
+  "functions": {
+    "supabase/functions/telegram-bot/index.ts": {
+      "runtime": "edge",
+      "memory": 128,
+      "maxDuration": 10
+    }
+  },
+  "builds": [
+    {
+      "src": "supabase/functions/telegram-bot/index.ts",
+      "use": "@vercel/deno"
+    }
+  ],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "public": ""
+}
