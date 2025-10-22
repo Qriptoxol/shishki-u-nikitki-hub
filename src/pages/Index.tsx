@@ -7,9 +7,15 @@ import { ReviewCard } from '@/components/ReviewCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ShoppingCart, Star, TreePine } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { ShoppingCart, Star, TreePine, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import pineCones from '@/assets/pine-cones.jpg';
+import cedarCones from '@/assets/cedar-cones.jpg';
+import eduBuds from '@/assets/edu-buds.jpg';
+import eduLeaves from '@/assets/edu-leaves.jpg';
 
 interface Product {
   id: string;
@@ -39,6 +45,29 @@ const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [eduMode, setEduMode] = useState(false);
+
+  // Educational mode products (for demonstration purposes only)
+  const eduProducts: Product[] = [
+    {
+      id: 'edu-1',
+      name: 'Образовательный материал: Шишки Premium',
+      description: 'Только для ознакомления. Демонстрация образовательного контента',
+      price: 4200,
+      image_url: eduBuds,
+      category: 'образовательные',
+      in_stock: false,
+    },
+    {
+      id: 'edu-2',
+      name: 'Образовательный материал: Сухой материал',
+      description: 'Только для ознакомления. Демонстрация образовательного контента',
+      price: 2800,
+      image_url: eduLeaves,
+      category: 'образовательные',
+      in_stock: false,
+    },
+  ];
 
   useEffect(() => {
     loadProducts();
@@ -60,7 +89,17 @@ const Index = () => {
       return;
     }
 
-    setProducts(data || []);
+    // Map image URLs to imported assets
+    const productsWithImages = (data || []).map(product => ({
+      ...product,
+      image_url: product.image_url === '/src/assets/pine-cones.jpg' 
+        ? pineCones 
+        : product.image_url === '/src/assets/cedar-cones.jpg' 
+        ? cedarCones 
+        : product.image_url
+    }));
+
+    setProducts(productsWithImages);
   };
 
   const loadReviews = async () => {
@@ -95,44 +134,74 @@ const Index = () => {
     });
   };
 
+  const displayProducts = eduMode ? eduProducts : products;
+  
   const filteredProducts =
     selectedCategory === 'all'
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
+      ? displayProducts
+      : displayProducts.filter((p) => p.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+    <div className={`min-h-screen transition-colors duration-500 ${eduMode ? 'bg-gradient-to-b from-slate-900 to-slate-800' : 'bg-gradient-to-b from-background to-muted/20'}`}>
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 border-b shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <TreePine className="h-8 w-8 text-primary" />
+              {eduMode ? <Sparkles className="h-8 w-8 text-green-500 animate-pulse" /> : <TreePine className="h-8 w-8 text-primary" />}
               <div>
-                <h1 className="text-2xl font-bold text-primary">Шишки у Никитки</h1>
-                <p className="text-xs text-muted-foreground">Натуральные шишки с доставкой</p>
+                <h1 className={`text-2xl font-bold ${eduMode ? 'text-green-400' : 'text-primary'}`}>
+                  {eduMode ? '🌿 Образовательный раздел' : 'Шишки у Никитки'}
+                </h1>
+                <p className="text-xs text-muted-foreground">
+                  {eduMode ? 'Только для ознакомления и образовательных целей' : 'Натуральные шишки с доставкой'}
+                </p>
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="icon" 
-              className="relative"
-              onClick={() => navigate('/cart')}
-            >
-              <ShoppingCart className="h-5 w-5" />
-              {getTotalItems() > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-accent">
-                  {getTotalItems()}
-                </Badge>
-              )}
-            </Button>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Switch 
+                  id="edu-mode" 
+                  checked={eduMode}
+                  onCheckedChange={setEduMode}
+                />
+                <Label htmlFor="edu-mode" className="text-sm cursor-pointer">
+                  {eduMode ? '🌿' : '🌲'}
+                </Label>
+              </div>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="relative"
+                onClick={() => navigate('/cart')}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {getTotalItems() > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-accent">
+                    {getTotalItems()}
+                  </Badge>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        {/* Educational Warning */}
+        {eduMode && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-8 text-center">
+            <p className="text-amber-300 font-semibold mb-1">⚠️ ОБРАЗОВАТЕЛЬНЫЙ РЕЖИМ ⚠️</p>
+            <p className="text-sm text-amber-200/80">
+              Этот раздел создан исключительно в образовательных и демонстрационных целях.
+              Товары недоступны для покупки.
+            </p>
+          </div>
+        )}
+
         {/* Trust Badges */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+        {!eduMode && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
           <div className="bg-card p-6 rounded-lg border text-center">
             <Star className="h-8 w-8 text-accent mx-auto mb-2" />
             <h3 className="font-semibold mb-1">Проверенный продавец</h3>
@@ -149,18 +218,23 @@ const Index = () => {
             <p className="text-sm text-muted-foreground">Доставка по всей России</p>
           </div>
         </div>
+        )}
 
         {/* Products Section */}
         <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6">Наш ассортимент</h2>
+          <h2 className={`text-3xl font-bold mb-6 ${eduMode ? 'text-green-400' : ''}`}>
+            {eduMode ? 'Образовательные материалы' : 'Наш ассортимент'}
+          </h2>
           
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-6">
-            <TabsList>
-              <TabsTrigger value="all">Все</TabsTrigger>
-              <TabsTrigger value="еловые">Еловые</TabsTrigger>
-              <TabsTrigger value="кедровые">Кедровые</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          {!eduMode && (
+            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="mb-6">
+              <TabsList>
+                <TabsTrigger value="all">Все</TabsTrigger>
+                <TabsTrigger value="еловые">Еловые</TabsTrigger>
+                <TabsTrigger value="кедровые">Кедровые</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
@@ -180,8 +254,9 @@ const Index = () => {
         </section>
 
         {/* Reviews Section */}
-        <section>
-          <h2 className="text-3xl font-bold mb-6">Отзывы наших клиентов</h2>
+        {!eduMode && (
+          <section>
+            <h2 className="text-3xl font-bold mb-6">Отзывы наших клиентов</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {reviews.map((review) => (
               <ReviewCard
@@ -194,6 +269,7 @@ const Index = () => {
             ))}
           </div>
         </section>
+        )}
 
         {/* Telegram User Info (for debugging) */}
         {isInTelegram && user && (
